@@ -40,8 +40,48 @@
   <h1>Tenant Management</h1>
 
   <div class="card">
+    <h3>Add Tenant</h3>
+
+    <input id="tenantName" type="text" placeholder="Tenant Name" />
+    <input id="emailAddress" type="email" placeholder="Email Address" />
+    <input id="tenantUnit" type="text" placeholder="Unit Number" />
+    <input id="tenantRent" type="number" placeholder="Monthly Rent" />
+
+    <label>
+      <input id="hasPet" type="checkbox" onchange="togglePetRent()" />
+      Has Pet
+    </label>
+
+    <br /><br />
+
+    <input
+      id="petRent"
+      type="number"
+      placeholder="Pet Rent"
+      style="display:none;"
+    />
+
+    <br /><br />
+
+    <button
+      id="createTenantBtn"
+      type="button"
+      onclick="addTenant()"
+    >
+      Create Tenant
+    </button>
+
+    <p id="errorMessage" style="color:red;"></p>
+  </div>
+
+  <div id="tenantList"></div>
+
+  <div class="card">
     <h3>Sarah Johnson</h3>
     <p>Unit: 1-1</p>
+    <p class="tenant-email" data-email="sarah.johnson@example.com">
+      sarah.johnson@example.com
+    </p>
     <p>Monthly Rent: $1450</p>
     <p>Pets: Dog</p>
     <p>Pet Rent: $50/Monthly</p>
@@ -50,10 +90,91 @@
   <div class="card">
     <h3>Mike Thompson</h3>
     <p>Unit: 2-4</p>
+    <p class="tenant-email" data-email="mike.thompson@example.com">
+      mike.thompson@example.com
+    </p>
     <p>Monthly Rent: $1675</p>
     <p>Pets: Cat</p>
     <p>Pet Rent: $35/Monthly</p>
   </div>
 
+  <script>
+    function togglePetRent() {
+      const hasPet = document.getElementById('hasPet').checked;
+      document.getElementById('petRent').style.display = hasPet ? 'block' : 'none';
+    }
+
+    function addTenant() {
+      const name = document.getElementById('tenantName').value.trim();
+      const email = document.getElementById('emailAddress').value.trim();
+      const unit = document.getElementById('tenantUnit').value.trim();
+      const rent = document.getElementById('tenantRent').value.trim();
+      const hasPet = document.getElementById('hasPet').checked;
+      const petRent = document.getElementById('petRent').value.trim();
+
+      const errorMessage = document.getElementById('errorMessage');
+
+      errorMessage.textContent = '';
+
+      // Required field validation
+      if (name === '' || email === '' || unit === '' || rent === '') {
+        errorMessage.textContent =
+          'All required fields must be completed.';
+        return;
+      }
+      // Pet rent validation
+      if (hasPet && petRent === '') {
+        errorMessage.textContent =
+          'Pet rent is required when tenant has pets.';
+        return;
+      }
+      // Duplicate email validation
+      const existingEmails =
+        document.querySelectorAll('.tenant-email');
+
+      for (let existingEmail of existingEmails) {
+        const storedEmail =
+          existingEmail.dataset.email;
+
+        if (
+          storedEmail === email.toLowerCase()
+        ) {
+          errorMessage.textContent =
+            'Duplicate email address detected.';
+          return;
+        }
+      }
+
+      const tenantCard = document.createElement('div');
+
+      tenantCard.className = 'card';
+
+      tenantCard.innerHTML = `
+        <h3>${name}</h3>
+        <p class="tenant-email" data-email="${email.toLowerCase()}">
+          ${email}
+        </p>
+        <p>Unit: ${unit}</p>
+        <p>Monthly Rent: $${rent}</p>
+        <p>Pets: ${hasPet ? 'Yes' : 'None'}</p>
+        ${hasPet ? `<p>Pet Rent: $${petRent}</p>` : ''}
+        <button onclick="this.parentElement.remove()">
+          Delete Tenant
+        </button>
+      `;
+
+      document.getElementById('tenantList')
+        .appendChild(tenantCard);
+
+      // Reset form
+      document.getElementById('tenantName').value = '';
+      document.getElementById('emailAddress').value = '';
+      document.getElementById('tenantUnit').value = '';
+      document.getElementById('tenantRent').value = '';
+      document.getElementById('hasPet').checked = false;
+      document.getElementById('petRent').value = '';
+      document.getElementById('petRent').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
